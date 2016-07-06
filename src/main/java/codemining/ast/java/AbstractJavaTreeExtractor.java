@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
@@ -98,6 +99,13 @@ public abstract class AbstractJavaTreeExtractor extends AbstractTreeExtractor {
 		final ASTNode u = astExtractor.getAST(f);
 		return getTree(u);
 	}
+	
+	public org.eclipse.jdt.core.dom.CompilationUnit getDistillerTree(final File f) throws IOException {
+		final JavaASTExtractor astExtractor = new JavaASTExtractor(false);
+		final org.eclipse.jdt.core.dom.CompilationUnit u = astExtractor.getAST(f);
+		return u;
+	}
+
 
 	/*
 	 * (non-Javadoc)
