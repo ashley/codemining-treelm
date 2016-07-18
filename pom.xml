@@ -104,6 +104,11 @@
         <version>1.9.5</version>
         <scope>test</scope>
    </dependency>
-</dependencies>
+    <dependency>
+    	<groupId>ch.uzh.ifi.seal</groupId>
+    	<artifactId>changedistiller</artifactId>
+    	<version>0.0.1-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
 
 </project>
