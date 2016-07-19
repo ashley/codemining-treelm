@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import org.apache.commons.io.FileUtils;
@@ -21,6 +22,7 @@ import codemining.ast.distilledchanges.ChangeDistillerTreeExtractor;
 import codemining.ast.java.AbstractJavaTreeExtractor;
 import codemining.lm.tsg.FormattedTSGrammar;
 import codemining.lm.tsg.TSGNode;
+import codemining.lm.tsg.samplers.AbstractTSGSampler;
 import codemining.lm.tsg.samplers.CollapsedGibbsSampler;
 import codemining.util.serialization.Serializer;
 import codemining.util.serialization.ISerializationStrategy.SerializationException;
@@ -39,7 +41,9 @@ public class CDSampleTSG {
 		final int nIterations = Integer.parseInt(args[2]);
 		final File samplerCheckpoint = new File("tsgSampler.ser");
 
-
+		final String serializedFile = 
+				args.length == 3 ? args[2].trim() + ".ser" : "CDtsg.ser";
+		
 		final CollapsedGibbsSampler sampler;
 
 		if (samplerCheckpoint.exists()) {
@@ -88,20 +92,55 @@ public class CDSampleTSG {
 
 					}
 				}
-				System.exit(0);
 			}
-			//			try {
-			//				final TreeNode<TSGNode> ast = TSGNode.convertTree(
-			//						format.getTree(fi), percentRootsInit);
-			//				nNodes += ast.getTreeSize();
-			//				nFiles++;
-			//				sampler.addTree(ast);
-			//			} catch (final Exception e) {
-			//				LOGGER.warning("Failed to get AST for "
-			//						+ fi.getAbsolutePath() + " "
-			//						+ ExceptionUtils.getFullStackTrace(e));
-			//			}
 
+			final AtomicBoolean finished = new AtomicBoolean(false);
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				@Override
+				public void run() {
+					int i = 0;
+					while (!finished.get() && i < 1000) {
+						try {
+							Thread.sleep(500);
+							i++;
+						} catch (final InterruptedException e) {
+							LOGGER.warning(ExceptionUtils.getFullStackTrace(e));
+						}
+					}
+				}
+
+			});
+
+			final int nItererationCompleted = sampler.performSampling(nIterations);
+
+			final FormattedTSGrammar grammarToUse;
+			if (nItererationCompleted >= nIterations) {
+				LOGGER.info("Sampling complete. Outputing burnin grammar...");
+				grammarToUse = (FormattedTSGrammar) sampler.getBurnInGrammar();
+			} else {
+				LOGGER.warning("Sampling not complete. Outputing sample grammar...");
+				grammarToUse = (FormattedTSGrammar) sampler.getSampleGrammar();
+			}
+			try {
+				Serializer.getSerializer().serialize(grammarToUse, serializedFile);
+			} catch (final Throwable e) {
+				LOGGER.severe("Failed to serialize grammar: "
+						+ ExceptionUtils.getFullStackTrace(e));
+			}
+
+			try {
+				Serializer.getSerializer().serialize(sampler,
+						"tsgSamplerCheckpoint.ser");
+			} catch (final Throwable e) {
+				LOGGER.severe("Failed to checkpoint sampler: "
+						+ ExceptionUtils.getFullStackTrace(e));
+			}
+
+			// sampler.pruneNonSurprisingRules(1);
+			sampler.pruneRareTrees((int) (AbstractTSGSampler.BURN_IN_PCT * nIterations) - 10);
+			System.out.println(grammarToUse.toString());
+			finished.set(true); // we have finished and thus the shutdown hook can
+			// now stop waiting for us.
 
 		}
 	}
