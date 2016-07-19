@@ -97,7 +97,7 @@ public class ChangeDistillerTreeExtractor extends AbstractTreeExtractor {
 		final int symbolId = getOrAddSymbolId(symbol);
 		final TreeNode<Integer> treeNode = TreeNode.create(symbolId, 1);
 		treeNode.addChildNode(helperExtractor.getTree(node),  0);
-		return null;
+		return treeNode;
 	}
 
 }
