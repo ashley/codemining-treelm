@@ -183,10 +183,13 @@ public class SampleBlockedTSG {
         } catch (final Throwable e) {
             LOGGER.severe("Failed to checkpoint sampler: " + ExceptionUtils.getFullStackTrace(e));
         }
-
+        String random1 = grammarToUse.generateRandomCode();
+        System.out.println("RANDOM:" + random1);
         // sampler.pruneNonSurprisingRules(1);
         grammarToUse.prune((int) (AbstractTSGSampler.BURN_IN_PCT * nIterations) - 10);
         System.out.println(grammarToUse.toString());
+        String random = grammarToUse.generateRandomCode();
+        System.out.println("RANDOM:" + random);
         finished.set(true); // we have finished and thus the shutdown hook can
         // now stop waiting for us.
 

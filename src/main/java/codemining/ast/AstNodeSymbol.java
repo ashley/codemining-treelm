@@ -15,6 +15,9 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import ch.uzh.ifi.seal.changedistiller.model.classifiers.ChangeType;
+import ch.uzh.ifi.seal.changedistiller.model.classifiers.SignificanceLevel;
+
 /**
  * A single AST Node Symbol
  *
@@ -48,6 +51,55 @@ public class AstNodeSymbol implements Serializable {
 
 	public static final int TEMPLATE_NODE = -2;
 
+	/*
+	ADDING_ATTRIBUTE_MODIFIABILITY(SignificanceLevel.LOW, false, false),
+    ADDING_CLASS_DERIVABILITY(SignificanceLevel.LOW, false, false),
+    ADDING_METHOD_OVERRIDABILITY(SignificanceLevel.LOW, false, false),
+    ADDITIONAL_CLASS(SignificanceLevel.LOW, true, false),
+    ADDITIONAL_FUNCTIONALITY(SignificanceLevel.LOW, true, false),
+    ADDITIONAL_OBJECT_STATE(SignificanceLevel.LOW, true, false),
+    ALTERNATIVE_PART_DELETE(SignificanceLevel.MEDIUM, true, false),
+    ALTERNATIVE_PART_INSERT(SignificanceLevel.MEDIUM, true, false),
+    ATTRIBUTE_RENAMING(SignificanceLevel.MEDIUM, false, true), // newEntity
+    ATTRIBUTE_TYPE_CHANGE(SignificanceLevel.HIGH, false, true), // root
+    CLASS_RENAMING(SignificanceLevel.MEDIUM, false, true), // rootEntity
+    COMMENT_DELETE(SignificanceLevel.NONE, true, false),
+    COMMENT_INSERT(SignificanceLevel.NONE, true, false),
+    COMMENT_MOVE(SignificanceLevel.NONE, true, false),
+    COMMENT_UPDATE(SignificanceLevel.NONE, true, false),
+    CONDITION_EXPRESSION_CHANGE(SignificanceLevel.MEDIUM, true, false),
+    DECREASING_ACCESSIBILITY_CHANGE(SignificanceLevel.HIGH, false, true), // changedEntity
+    DOC_DELETE(SignificanceLevel.NONE, false, false),
+    DOC_INSERT(SignificanceLevel.NONE, false, false),
+    DOC_UPDATE(SignificanceLevel.NONE, false, false),
+    INCREASING_ACCESSIBILITY_CHANGE(SignificanceLevel.MEDIUM, false, false),
+    METHOD_RENAMING(SignificanceLevel.MEDIUM, false, true), // newEntity
+    PARAMETER_DELETE(SignificanceLevel.HIGH, false, true), // root
+    PARAMETER_INSERT(SignificanceLevel.HIGH, false, true), // root
+    PARAMETER_ORDERING_CHANGE(SignificanceLevel.HIGH, false, true), // root
+    PARAMETER_RENAMING(SignificanceLevel.MEDIUM, false, false),
+    PARAMETER_TYPE_CHANGE(SignificanceLevel.HIGH, false, true), // root
+    PARENT_CLASS_CHANGE(SignificanceLevel.CRUCIAL, false, false),
+    PARENT_CLASS_DELETE(SignificanceLevel.CRUCIAL, false, false),
+    PARENT_CLASS_INSERT(SignificanceLevel.CRUCIAL, false, false),
+    PARENT_INTERFACE_CHANGE(SignificanceLevel.CRUCIAL, false, false),
+    PARENT_INTERFACE_DELETE(SignificanceLevel.CRUCIAL, false, false),
+    PARENT_INTERFACE_INSERT(SignificanceLevel.CRUCIAL, false, false),
+    REMOVED_CLASS(SignificanceLevel.HIGH, true, true), // changedEntity
+    REMOVED_FUNCTIONALITY(SignificanceLevel.HIGH, true, true), // changedEntity
+    REMOVED_OBJECT_STATE(SignificanceLevel.HIGH, true, true), // changedEntity
+    REMOVING_ATTRIBUTE_MODIFIABILITY(SignificanceLevel.HIGH, false, true), // root
+    REMOVING_CLASS_DERIVABILITY(SignificanceLevel.CRUCIAL, false, false),
+    REMOVING_METHOD_OVERRIDABILITY(SignificanceLevel.CRUCIAL, false, false),
+    RETURN_TYPE_CHANGE(SignificanceLevel.HIGH, false, true), // root
+    RETURN_TYPE_DELETE(SignificanceLevel.HIGH, false, true), // root
+    RETURN_TYPE_INSERT(SignificanceLevel.HIGH, false, true), // root
+    STATEMENT_DELETE(SignificanceLevel.MEDIUM, true, false),
+    STATEMENT_INSERT(SignificanceLevel.LOW, true, false),
+    STATEMENT_ORDERING_CHANGE(SignificanceLevel.LOW, true, false),
+    STATEMENT_PARENT_CHANGE(SignificanceLevel.MEDIUM, true, false),
+    STATEMENT_UPDATE(SignificanceLevel.LOW, true, false),
+    UNCLASSIFIED_CHANGE(SignificanceLevel.NONE, true, false); */
 	public static final int UNK_SYMBOL = Integer.MIN_VALUE;
 
 	public static final Function<Integer, String> DEFAULT_NODETYPE_TO_STRING = new Function<Integer, String>() {
@@ -79,6 +131,9 @@ public class AstNodeSymbol implements Serializable {
 	 */
 	private SortedMap<String, Object> simplePropValues = Maps.newTreeMap();
 
+	public AstNodeSymbol(ChangeType ct) {
+		nodeType = (ct.ordinal() * -1) - 3;
+	}
 	public AstNodeSymbol(final int type) {
 		nodeType = type;
 	}

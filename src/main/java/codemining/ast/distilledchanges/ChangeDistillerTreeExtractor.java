@@ -5,15 +5,13 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 
-import codemining.ast.java.JavaAstTreeExtractor;
-
 import ch.uzh.ifi.seal.changedistiller.model.classifiers.ChangeType;
-import ch.uzh.ifi.seal.changedistiller.model.classifiers.EntityType;
 import ch.uzh.ifi.seal.changedistiller.model.entities.SourceCodeChange;
 import ch.uzh.ifi.seal.changedistiller.model.entities.SourceCodeEntity;
 import codemining.ast.AbstractTreeExtractor;
 import codemining.ast.AstNodeSymbol;
 import codemining.ast.TreeNode;
+import codemining.ast.java.JavaAstTreeExtractor;
 import codemining.languagetools.ITokenizer;
 import codemining.languagetools.ParseType;
 
@@ -61,18 +59,44 @@ public class ChangeDistillerTreeExtractor extends AbstractTreeExtractor {
 		return null;
 	}
 
+	/**
+	 * Add further annotations to the given symbol. Useful for classes that will
+	 * subclass this one.
+	 *
+	 * @param symbol
+	 * @param node
+	 */
+	public void annotateSymbol(final AstNodeSymbol symbol, final ASTNode node) {
+		// Do nothing
+	}
+
+	
+
 	public TreeNode<Integer> getTree(SourceCodeChange change) {
+		/* 
+		 * These are the fields of a sourcecodeentity.
+		 * CLG FIXME: I presently believe that I don't care about them
+		 * except for the original node
+		 * (and that associated entities are just comments,
+		 * which are broken right now anyway)
+    private String fUniqueName;
+    private EntityType fType;
+    private int fModifiers;
+    private List<SourceCodeEntity> fAssociatedEntities;
+    private SourceRange fRange;
+    private ASTNode originalNode;
+*/ 
 		ChangeType ct = change.getChangeType();
-		final AstNodeSymbol symbol = new AstNodeSymbol(
-				ct.ordinal()); // this won't work, need to multiply or something.  Or make a different kind of symbol?
+		final AstNodeSymbol symbol = new AstNodeSymbol(ct); 
 		SourceCodeEntity entity = change.getChangedEntity();
-		EntityType et = entity.getType();
+		// FIXME: entities are harder.  Do I care about root or parent
+		// entities??
 		ASTNode node = entity.getOriginalNode();
-		if(node == null) {
-		} else {
-		TreeNode<Integer> astNode = helperExtractor.getTree(node);
-		}
-		// TODO Auto-generated method stub
+		symbol.addChildProperty("changedEntity");
+		annotateSymbol(symbol, node);
+		final int symbolId = getOrAddSymbolId(symbol);
+		final TreeNode<Integer> treeNode = TreeNode.create(symbolId, 1);
+		treeNode.addChildNode(helperExtractor.getTree(node),  0);
 		return null;
 	}
 
