@@ -1,9 +1,13 @@
 package codemining.lm.tsg.tui.java;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -34,7 +38,7 @@ public class CDSampleTSG {
 	SerializationException {
 		if (args.length != 3) { 
 			System.err
-			.println("Usage <TrainingDir1> <TrainingDir2> <#iterations>");
+			.println("Usage <TrainingDir1> <commit file> <#iterations>");
 			return;
 		} 
 
@@ -55,14 +59,14 @@ public class CDSampleTSG {
 			sampler = new CollapsedGibbsSampler(20, 10,
 					new FormattedTSGrammar(format),
 					new FormattedTSGrammar(format));
-
-			File trainingDir1 = new File(args[0]);
-
-			Collection<File> files1 = FileUtils.listFiles(
-					trainingDir1, 
-					new RegexFileFilter(".*java"), 
-					DirectoryFileFilter.DIRECTORY
-					);
+			
+			String trainingDir = args[0];
+			BufferedReader br = new BufferedReader(new FileReader(args[1]));
+			Set<String> allCommits = new HashSet<String>();
+			String line;
+			while((line = br.readLine()) != null) {
+				allCommits.add(line.trim());
+			}
 
 
 			final double percentRootsInit = .9;
@@ -72,19 +76,17 @@ public class CDSampleTSG {
 			FileDistiller distiller = ChangeDistiller.createFileDistiller(Language.JAVA);
 
 
-			for(File f1 : files1) {
-				String path1 = f1.getPath();
-				System.err.println("args1: " + args[0]);
-				String[] split = path1.split(args[0]);
-				String relativePath = split[1];
-				System.err.println("path1: " + path1 + " relative path: " + relativePath + " path2: " + args[1] + "/" + relativePath);
-				File f2 = new File(args[1] + "/" + relativePath);
-				if(f2.exists()) { 
+			for(String commit : allCommits) {
+				String beforePath = trainingDir + "/" + commit + "_BEFORE.txt";
+				String afterPath = trainingDir + "/" + commit + "_AFTER.txt";
+				File f1 = new File(beforePath);
+				File f2 = new File(afterPath);
+				
+				if(f1.exists() && f2.exists()) { 
 					StructureNode outcome = distiller.extractClassifiedSourceCodeChanges(f1, f2);
 					List<SourceCodeChange> changes = distiller.getSourceCodeChanges();
 					for (SourceCodeChange change: changes){
 						System.out.print(change);
-
 						final TreeNode<TSGNode> changeTree = TSGNode.convertTree(format.getTree(change), percentRootsInit);
 								nNodes += changeTree.getTreeSize();
 						nFiles++;
@@ -93,6 +95,10 @@ public class CDSampleTSG {
 					}
 				}
 			}
+			LOGGER.info("Loaded " + nFiles + " files containing " + nNodes
+					+ " nodes");
+			sampler.lockSamplerData();
+
 
 			final AtomicBoolean finished = new AtomicBoolean(false);
 			Runtime.getRuntime().addShutdownHook(new Thread() {
