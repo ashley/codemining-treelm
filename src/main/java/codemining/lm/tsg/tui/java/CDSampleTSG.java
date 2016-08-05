@@ -67,34 +67,48 @@ public class CDSampleTSG {
 			while((line = br.readLine()) != null) {
 				allCommits.add(line.trim());
 			}
-
+			br.close();
 
 			final double percentRootsInit = .9;
 			int nFiles = 0;
 			int nNodes = 0;
 
 			FileDistiller distiller = ChangeDistiller.createFileDistiller(Language.JAVA);
-
-
-			for(String commit : allCommits) {
+			System.err.println("Commit num:" + allCommits.size());
+			String commit = "8ff4708d7";
+	//		for(String commit : allCommits) {
+				System.err.println("Processing: " + commit);
 				String beforePath = trainingDir + "/" + commit + "_BEFORE.txt";
 				String afterPath = trainingDir + "/" + commit + "_AFTER.txt";
 				File f1 = new File(beforePath);
 				File f2 = new File(afterPath);
-				
+			//	try {
+
 				if(f1.exists() && f2.exists()) { 
 					StructureNode outcome = distiller.extractClassifiedSourceCodeChanges(f1, f2);
 					List<SourceCodeChange> changes = distiller.getSourceCodeChanges();
+					for(SourceCodeChange change : changes) {
+						System.out.println(change);
+						System.out.println();
+					}
+					System.exit(0);
 					for (SourceCodeChange change: changes){
 						System.out.print(change);
-						final TreeNode<TSGNode> changeTree = TSGNode.convertTree(format.getTree(change), percentRootsInit);
+						TreeNode<Integer> asTree = format.getTree(change);
+						final TreeNode<TSGNode> changeTree = TSGNode.convertTree(asTree, percentRootsInit);
 								nNodes += changeTree.getTreeSize();
 						nFiles++;
 						sampler.addTree(changeTree);
 
+
 					}
 				}
-			}
+//				} catch (final Exception e) {
+//					LOGGER.warning("Failed to get AST for "
+//							+ f1.getAbsolutePath() + " "
+//							+ ExceptionUtils.getFullStackTrace(e));
+//				}
+	//		}
 			LOGGER.info("Loaded " + nFiles + " files containing " + nNodes
 					+ " nodes");
 			sampler.lockSamplerData();

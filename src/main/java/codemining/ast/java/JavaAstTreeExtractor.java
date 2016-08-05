@@ -75,6 +75,7 @@ public class JavaAstTreeExtractor extends AbstractJavaTreeExtractor {
 		@Override
 		public void postVisit(final ASTNode node) {
 			try {
+				System.err.println("POSTVISIT:" + node.toString());
 				final AstNodeSymbol symbol = new AstNodeSymbol(
 						node.getNodeType());
 				final List<StructuralPropertyDescriptor> supportedDescriptors = node

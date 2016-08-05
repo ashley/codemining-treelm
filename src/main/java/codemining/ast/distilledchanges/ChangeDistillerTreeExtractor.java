@@ -91,12 +91,12 @@ public class ChangeDistillerTreeExtractor extends AbstractTreeExtractor {
 		SourceCodeEntity entity = change.getChangedEntity();
 		// FIXME: entities are harder.  Do I care about root or parent
 		// entities??
-		ASTNode node = entity.getOriginalNode();
-		symbol.addChildProperty("changedEntity");
-		annotateSymbol(symbol, node);
+//		ASTNode node = entity.getOriginalNode();
+//		symbol.addChildProperty("changedEntity");
+//		annotateSymbol(symbol, node);
 		final int symbolId = getOrAddSymbolId(symbol);
 		final TreeNode<Integer> treeNode = TreeNode.create(symbolId, 1);
-		treeNode.addChildNode(helperExtractor.getTree(node),  0);
+//		treeNode.addChildNode(helperExtractor.getTree(node),  0);
 		return treeNode;
 	}
 
