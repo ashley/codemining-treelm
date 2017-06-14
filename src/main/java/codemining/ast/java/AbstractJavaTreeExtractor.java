@@ -3,6 +3,7 @@ package codemining.ast.java;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
@@ -14,6 +15,7 @@ import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.collect.BiMap;
 
+import ch.uzh.ifi.seal.changedistiller.structuredifferencing.StructureFinalDiffNode;
 import codemining.ast.AbstractTreeExtractor;
 import codemining.ast.AstNodeSymbol;
 import codemining.ast.TreeNode;
@@ -62,7 +64,9 @@ public abstract class AbstractJavaTreeExtractor extends AbstractTreeExtractor {
 
 	@Override
 	public String getCodeFromTree(final TreeNode<Integer> tree) {
-		return getASTFromTree(tree).toString();
+		//Converts int tree to AST string using a NariveASTBuffer
+		String nu = getASTFromTree(tree).toString();
+		return nu;
 	}
 
 	@Override
@@ -94,6 +98,8 @@ public abstract class AbstractJavaTreeExtractor extends AbstractTreeExtractor {
 	 * @return
 	 */
 	public abstract TreeNode<Integer> getTree(final ASTNode node);
+	
+	public abstract TreeNode<Integer> getChangeTree(final StructureFinalDiffNode node);
 
 	/*
 	 * (non-Javadoc)
@@ -104,6 +110,12 @@ public abstract class AbstractJavaTreeExtractor extends AbstractTreeExtractor {
 	public TreeNode<Integer> getTree(final File f) throws IOException {
 		final JavaASTExtractor astExtractor = new JavaASTExtractor(false);
 		final ASTNode u = astExtractor.getAST(f);
+		return getTree(u);
+	}
+	
+	public TreeNode<Integer> getTree(final StructureFinalDiffNode d, final File f) throws IOException{
+		final JavaASTExtractor astExtractor = new JavaASTExtractor(false);
+		final ASTNode u = astExtractor.getAST(d,f,new HashSet<String>());
 		return getTree(u);
 	}
 	

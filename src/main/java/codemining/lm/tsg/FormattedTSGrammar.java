@@ -59,20 +59,26 @@ public class FormattedTSGrammar extends TSGrammar<TSGNode> {
 
 	public final String generateRandomCode() {
 		// Find compilation unit node.
+		// TODO How does it find a compilation unit node? Is it a random unit node?
 		final TreeNode<Integer> rootNode = treeFormat
 				.getKeyForCompilationUnit();
-
+		
+		//Obtain the top node of the tree
 		final TSGNode topTreeNode = new TSGNode(rootNode.getData());
 		topTreeNode.isRoot = true;
-
+		
 		final TreeNode<TSGNode> node = TreeNode.create(topTreeNode,
 				rootNode.nProperties());
-
+		
+		//Gets random tree nodes from a traversal of grammar
 		final TreeNode<TSGNode> randomTree = this.generateRandom(node);
 
 		final TreeNode<Integer> treeCopy = TreeNode.create(
 				randomTree.getData().nodeKey, randomTree.nProperties());
 		TSGNode.copyChildren(treeCopy, randomTree);
+		
+		//Returns a copy of the tree with random nodes
+		// TODO Why does this have to copy a tree? Why can't it just return randomTree?
 		return treeFormat.getCodeFromTree(treeCopy);
 	}
 

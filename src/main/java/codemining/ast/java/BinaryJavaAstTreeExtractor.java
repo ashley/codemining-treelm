@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.Maps;
 
+import ch.uzh.ifi.seal.changedistiller.structuredifferencing.StructureFinalDiffNode;
 import codemining.ast.AstNodeSymbol;
 import codemining.ast.TreeBinarizer;
 import codemining.ast.TreeNode;
@@ -104,5 +105,11 @@ public class BinaryJavaAstTreeExtractor extends AbstractJavaTreeExtractor {
 						.get(entry.getValue()))));
 
 		return baseTreeMap;
+	}
+
+	@Override
+	public TreeNode<Integer> getChangeTree(StructureFinalDiffNode node) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

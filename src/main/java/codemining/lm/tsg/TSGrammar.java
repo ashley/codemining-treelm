@@ -200,9 +200,11 @@ ITreeSubstitutionGrammar<T> {
 				if (consequents == null) {
 					continue;
 				}
+				//This code has a random int and only selects entries bigger than that number.
 				final TreeNode<T> selected = SampleUtils
 						.getRandomElement(consequents);
 				// Copy
+				// TODO Why does it need to make a copy of the random entries?
 				final TreeNode<T> selectedCopy = selected.deepCopy();
 
 				// add all children here!

@@ -19,8 +19,10 @@ import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import ch.uzh.ifi.seal.changedistiller.structuredifferencing.StructureFinalDiffNode;
 import codemining.ast.AstNodeSymbol;
 import codemining.ast.TreeNode;
+import codemining.ast.js.ChangeASTVisitor;
 
 /**
  * Convert Eclipse AST trees to TreeNodes and back. Super complex and stupid
@@ -51,7 +53,7 @@ public class JavaAstTreeExtractor extends AbstractJavaTreeExtractor {
 			super(useComments);
 			this.useComments = useComments;
 		}
-
+		
 		public void extractFromNode(final ASTNode node) {
 			if (useComments && node instanceof CompilationUnit) {
 				final CompilationUnit cu = (CompilationUnit) node;
@@ -64,6 +66,10 @@ public class JavaAstTreeExtractor extends AbstractJavaTreeExtractor {
 				}
 			}
 			node.accept(this);
+		}
+		
+		public void extractFromChangeNode(final StructureFinalDiffNode node){
+			//ChangeASTVisitor.acceptChange(node,this);
 		}
 
 		public TreeNode<Integer> postProcessNodeBeforeAdding(
@@ -472,7 +478,8 @@ public class JavaAstTreeExtractor extends AbstractJavaTreeExtractor {
 		// It will contain the nodes in the order from the last to be converted
 		// to the first (i.e topologically sorted)
 		final List<TreeNode<Integer>> conversionPlan = Lists.newArrayList();
-
+		
+		//Gets all of the children from node for conversion
 		toVisit.push(tree);
 		while (!toVisit.isEmpty()) {
 			final TreeNode<Integer> node = toVisit.pop();
@@ -486,6 +493,7 @@ public class JavaAstTreeExtractor extends AbstractJavaTreeExtractor {
 		}
 
 		// OK. Now back to business...
+		//Converts these children from node to ASTNode with properties (done with JavaASTExtractor)
 		final AST ast = AST.newAST(AST.JLS8);
 		for (int i = conversionPlan.size() - 1; i >= 0; i--) {
 			try {
@@ -577,7 +585,13 @@ public class JavaAstTreeExtractor extends AbstractJavaTreeExtractor {
 	public TreeNode<Integer> getTree(final ASTNode node) {
 		return getTree(node, false);
 	}
-
+	
+	public TreeNode<Integer> getChangeTree(StructureFinalDiffNode node){
+		final TreeNodeExtractor ex = new TreeNodeExtractor(false);
+		ex.extractFromChangeNode(node);
+		return ex.computedNodes.get(node);
+	}
+	
 	public TreeNode<Integer> getTree(final ASTNode node,
 			final boolean useComments) {
 		final TreeNodeExtractor ex = new TreeNodeExtractor(useComments);
